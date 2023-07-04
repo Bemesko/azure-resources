@@ -86,9 +86,111 @@ https://www.youtube.com/watch?v=feQvnIUJ3Iw&ab_channel=K21Academy
   - AppServers ASG can access DbServers and be accessed by WebServers
   - DbServers ASG can only be accessed by AppServers
 
-**Checkpoint:** 43:17
+### Azure Firewall
+- Managed cloud-base network security service
+- Connectivity policies to protect layers 3 and 7
+- Inbound/outbound filtering rules
+- Highly scalable
+- Threat intelligence
+- Also is unusually expensive for an Azure Resource
+- 1 firewall per virtual network
+
+#### Firewall Deployment Models
+- Secured virtual hub (Azure Virtual WAN Hub)
+- Hub virtual network (hub/spoke model using regular VNETs)
+
+#### Azure Firewall Manager
+- Centralizes security policies and routing managements for firewalls
+
+### Bastion Hosts
+- AKA jumpbox, remote server host
+- Usually vms can be connected through 3389 (rdp) or 22 (linux)
+  - This tends to be risky if the vms are important
+- Bastion is a server that accepts connections over the internet using port 443 (SSL)
+- First the user connects to Azure Bastion through the Azure Portal, and it will have the tools to connect to the virtual machines
+
+![](assets/bastion-host.png)
+
+### NAT Gateway
+- NAT - Network Address Translation
+- All subnets attached to it use the NAT's public IP instead of the resources' IPs for outbound traffic only
+- Fully managed and highly available
+- Also works for IP Prefixes
+- Associates directly with subnets
+
+### Azure DNS
+- DNS - Domain Name Service
+  - Resolves hostnames to IP addresses
+- When you create a vnet, you can set the vnet's DNS servers
+
+### Azure Load Balancer
+- Takes requests from clients and balance them to one of several backend servers in the backend pool
+- Distribution strategies (Load Balancing Rules)
+  - Round Robin -> cycling through machines
+  - Weighted Distribution (50% of traffic to backend X)
+  - Client Affinity (same clients always get the same machines)
+- Has health probes to determine if everything in the backend is ok
+- Works in layer 4 (TCP/UDP) and layer 7 (HTTP)
+
+#### External/Public
+- Are exposed to the internet
+- Have a public IP
+- Can listen to one or more ports (such as 80 and 443)
+
+#### Internal/Private
+- Balances traffic only inside a virtual machine
+- Can be the only exposed part of a subnet to route traffic to a pool of the same resource (backend servers/databases)
+![](assets/internal-load-balancer.png)
+
+#### Application Gateway
+- Works on layer 7 (HTTP/S) only
+- When someone makes a request to the app gateway's frontend IP, it will trigger a HTTP/HTTPS listener that will route the request to one of several backends in the backend pool, based on the HTTP Settings
+  - Backends can be Web Apps, VM, VMSS, On Premise Servers, Kubernetes
+- Supports bath based routing
+- Also support multiple-site routing
+- Has a Web Application Firewall and a Layer 7 Load Balancer
+
+### Azure Traffic Manager
+- Used to determine what is the best possible endpoint to route a client request
+- Can be set up to use one of several routing methods
+- Difference from load balancer is that the traffic manager redirects the user directly to the endpoint, instead of proxying the connection
+- Can be used to redirect to load balancers for ultra-high-availability
+- Also has health checks
+- Routing Methods
+  - Weighted
+  - Performance (Which endpoint has the fastest response)
+  - Geographic
+
+### Connecting Cloud to On Premises
+
+#### Express Route
+- Stablishes a direct connection from Microsoft's Network to the Customer's Network through a dedicated pipe
+  - Direct connection meaning it doesn't go through the internet
+- ExpressRoute Circuit - 2 pipes between cloud and on prem networks, one primary and one secondary
+- Microsoft Edge (not the browser): Links to either a vnet (using Azure Private Peering) or to public IPs for other Microsoft Services and servers as a middleman for the traffic between them and the ExpressRoute Circuit
+- Very fast
+- Expensive
+- Components
+  - Customer needs a gateway and local edge routers to connect to the Express Route Circuit
+  - Azure needs to have an ExpressRoute Gateway
+
+#### VPN Gateway
+- Data goes through the internet, so is an indirect connection
+  - Instead of a direct pipe, data goes through an IPsec IKE VPN Tunnel
+- Can't guarantee a super fast connection
+- One end of the gateway will talk to Azure and the other end will talk to an on premises VPN device through the tunnel
+- On premises device needs to have a public IP to talk to the VPN Gateway
+
+##### Site to Site (S2S)
+
+##### Point to Site (P2S)
+
+#### Local Network Gateway
+
+**Checkpoint:** 1:16:26
 
 ## Doubts
 - What is the Propagate Gateway Routes option when creating a route table?
 - How can service endpoints be accessed in practice?
 - Are ASGs useful only for virtual machines?
+- Is Web Application Firewall only available for application gateways?
