@@ -4,6 +4,8 @@
 
 https://www.youtube.com/watch?v=feQvnIUJ3Iw&ab_channel=K21Academy
 
+https://www.youtube.com/watch?v=9DuTWSvsLXM&list=PLlVtbbG169nGccbp8VSpAozu3w9xSQJoY&index=7&ab_channel=JohnSavill%27sTechnicalTraining
+
 ## Virtual Networks Overview
 
 ### Fundamentals
@@ -176,18 +178,51 @@ https://www.youtube.com/watch?v=feQvnIUJ3Iw&ab_channel=K21Academy
 
 #### VPN Gateway
 - Data goes through the internet, so is an indirect connection
-  - Instead of a direct pipe, data goes through an IPsec IKE VPN Tunnel
+  - Instead of a direct pipe, data goes through an IPsec/IKE (IKEv1 or IKEv2) VPN Tunnel
 - Can't guarantee a super fast connection
 - One end of the gateway will talk to Azure and the other end will talk to an on premises VPN device through the tunnel
-- On premises device needs to have a public IP to talk to the VPN Gateway
+- The VPN Gateway itself needs to exist in a separate subnet, created as a Gateway Subnet instead of a regular one
 
 ##### Site to Site (S2S)
+- Connects Azure to an on premises network, with multiple devices
+- Implementing S2S:
+  1. Create vnets and subnets
+  2. Create the gateway subnet
+  3. Create the VPN gateway in the gateway subnet
+  4. Set up the VPN device on premises
+  5. Create the local network Gateway with the data from the VPN device
+  6. Create the VPN connection in Azure
+
+##### Local Network Gateway
+- Virtual representation of an on premises VPN device
+- On premises device needs to have a public IP to talk to the VPN Gateway
+- Used to set up a site to site VPN connection
 
 ##### Point to Site (P2S)
+- Someone can install a VPN client to configure a VPN tunnel between Azure (site) and their machine (point)
 
-#### Local Network Gateway
+#### Virtual WAN
+- WAN = Wide Area Connection
+- If you have a lot of vnets and a lot of on premises networks, a Virtual WAN can connect all the VNets to all on premises networks
+- This only requires you to set up the VPN Gateway once
 
-**Checkpoint:** 1:16:26
+### Vnet Peering
+- All vnets are available only on a specific region
+- If you have machines in 2 different regions you'll need to create 2 different vnets
+- Inside the same vnet, devices can connect through their private IPs
+- If a device from Vnet 1 wants to talk with a device from Vnet 2 using a private IP, that's when **peering** the virtual networks is useful
+- Peering: connecting 2 virtual networks, can be either 2 vnets in the same region (regional peering) or in different regions (global peering)
+- To peer vnets, go to the Virtual Network resource, tab "Peerings"
+
+## Hub and Spoke Model
+- Architecture pattern for creating networks
+- One central Hub network that centralizes common components for networking such as Firewall, Bastion, VPN Gateways and Monitoring and only has what should be common for other networks
+- Networks that actually have stuff in them are called Spoke networks and they are peered to the Hub network to also take advantage of what's configured in there
+- This way we don't need to create one firewall for each network, for example
+
+### Gateway Transit
+- Property that can be set in virtual network peering that allows devices in an on premises network direct access to devices in a spoke network using private IPs
+- The only way for VPN Gateway to work in the hub and spoke model
 
 ## Doubts
 - What is the Propagate Gateway Routes option when creating a route table?
